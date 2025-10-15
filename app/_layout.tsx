@@ -1,24 +1,36 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import "./global.css";
+import { Stack } from "expo-router";
+import { useColorScheme } from "react-native";
+import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Stack
+        screenOptions={{
+          headerShown: false, // Hide headers globally
+          animation: "slide_from_right", // Smooth page transition
+        }}
+      >
+        {/* Auth flow */}
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        
+        {/* Onboarding flow */}
+        <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
+
+        {/* Main tab navigation */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+
+        {/* Fullscreen Player Page */}
+        <Stack.Screen
+          name="player"
+          options={{
+            headerShown: false, // No header bar
+          }}
+        />
       </Stack>
-      <StatusBar style="auto" />
     </ThemeProvider>
   );
 }
