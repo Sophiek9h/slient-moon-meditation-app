@@ -1,25 +1,22 @@
-// app/index.tsx
-import { useEffect } from "react";
-import { View, ActivityIndicator } from "react-native";
-import { useRouter, useNavigationContainerRef } from "expo-router";
+import { Redirect } from 'expo-router';
+import { useAuth } from '@/lib/AuthContext';
+import { ActivityIndicator, View } from 'react-native';
 
 export default function Index() {
-  const router = useRouter();
-  const navigationRef = useNavigationContainerRef();
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (navigationRef.isReady()) {
-        router.replace("/(auth)");
-      }
-    }, 100); // tiny delay to ensure the layout is ready
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" color="#8E97FD" />
+      </View>
+    );
+  }
 
-    return () => clearTimeout(timeout);
-  }, [navigationRef]);
+  // Redirect based on auth state
+  if (user) {
+    return <Redirect href="/(tabs)/(home)" />;
+  }
 
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <ActivityIndicator size="large" color="#000" />
-    </View>
-  );
+  return <Redirect href="/(auth)" />;
 }

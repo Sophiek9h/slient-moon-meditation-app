@@ -1,4 +1,3 @@
-// (auth)/signin.tsx
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { useRouter } from "expo-router";
@@ -10,9 +9,11 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { signInWithEmail } from "@/lib/firebase.auth";
 
 const signin = () => {
   const router = useRouter();
@@ -20,9 +21,34 @@ const signin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    console.log({  email, password });
+  const handleSubmit = async () => {
+    // Validation
+    if (!email.trim()) {
+      Alert.alert("Error", "Please enter your email");
+      return;
+    }
+
+    if (!password) {
+      Alert.alert("Error", "Please enter your password");
+      return;
+    }
+
+    // Try to sign in
+    setLoading(true);
+    try {
+      const user = await signInWithEmail(email, password);
+      console.log("Signed in successfully:", user.email);
+      
+      // Navigate to main app (tabs)
+      router.replace("/(tabs)/(home)");
+      
+    } catch (error: any) {
+      Alert.alert("Sign In Failed", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,6 +75,7 @@ const signin = () => {
           Welcome Back!
         </Text>
 
+        {/* We'll add Google and facebook Sign-In later */}
         <TouchableOpacity className="bg-facebookBlue rounded-full mx-3 py-4 mt-10 flex justify-center items-center">
           <View className="flex flex-row items-center gap-5">
             <Image
@@ -62,7 +89,7 @@ const signin = () => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity className="bg-white border border-gray-200 rounded-full mx-3 py-4 mt-6 flex justify-center items-center">
+        <TouchableOpacity className="bg-white border border-gray-200 rounded-full mx-3 py-4 mt-10 flex justify-center items-center">
           <View className="flex flex-row items-center gap-5">
             <Image
               source={icons.google}
@@ -85,6 +112,7 @@ const signin = () => {
           placeholder="Enter Email"
           keyboardType="email-address"
           autoCapitalize="none"
+          editable={!loading}
           className="border border-gray-200 rounded-2xl px-6 py-5 mb-6 mx-3 bg-gray-100"
         />
 
@@ -95,11 +123,13 @@ const signin = () => {
             placeholder="Enter Password"
             secureTextEntry={!showPassword}
             autoCapitalize="none"
+            editable={!loading}
             className="border border-gray-200 rounded-2xl px-6 py-5 bg-gray-100 pr-14"
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             className="absolute right-4 top-5"
+            disabled={loading}
           >
             <Image
               source={showPassword ? icons.eyeOpen : icons.eye}
@@ -111,16 +141,35 @@ const signin = () => {
 
         <TouchableOpacity
           onPress={handleSubmit}
+          disabled={loading}
           className="bg-primaryBlue rounded-full mx-3 py-4 mt-8 flex justify-center items-center"
+          style={{ opacity: loading ? 0.6 : 1 }}
         >
-          <Text className="text-center font-helveticaMedium text-base text-white">
-            LOG IN
-          </Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text className="text-center font-helveticaMedium text-base text-white">
+              LOG IN
+            </Text>
+          )}
         </TouchableOpacity>
 
-        <Text className="text-center mt-5 font-helveticaLight">Forgot Password?</Text>
+        {/* <Text className="text-center mt-5 font-helveticaLight">
+          Forgot Password?
+        </Text> */}
 
-
+        <TouchableOpacity 
+          onPress={() => router.push("/(auth)/signup")}
+          className="mt-6"
+          disabled={loading}
+        >
+          <Text className="text-center text-gray-600">
+            Don't have an account?{" "}
+            <Text className="text-primaryBlue font-helveticaMedium">
+              Sign Up
+            </Text>
+          </Text>
+        </TouchableOpacity>
       </SafeAreaView>
     </ScrollView>
   );

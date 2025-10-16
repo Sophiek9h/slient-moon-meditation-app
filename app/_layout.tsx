@@ -3,12 +3,12 @@ import { Stack } from "expo-router";
 import { useColorScheme, View, ActivityIndicator } from "react-native";
 import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { PaperProvider } from "react-native-paper";
+import { AuthProvider } from "@/lib/AuthContext";
+import { ProtectedRoute } from "@/lib/ProtectedRoute";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-
-  // Load Airbnb Cereal font
+  
   const [fontsLoaded] = useFonts({
     "Cereal-Medium": require("../assets/fonts/AirbnbCereal_Medium.otf"),
     "Cereal-Bold": require("../assets/fonts/AirbnbCereal_Bold.otf"),
@@ -21,7 +21,6 @@ export default function RootLayout() {
     "HelveticaUltraLight": require("../assets/fonts/HelveticaNeueUltraLight.otf"),
   });
 
-  // Show loader until font is loaded
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" }}>
@@ -31,32 +30,38 @@ export default function RootLayout() {
   }
 
   return (
-    <PaperProvider>
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack
-        screenOptions={{
-          headerShown: false, // Hide headers globally
-          animation: "slide_from_right", // Smooth page transition
-        }}
-      >
-        {/* Auth flow */}
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-
-        {/* Onboarding flow */}
-        <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-
-        {/* Main tab navigation */}
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-
-        {/* Fullscreen Player Page */}
-        <Stack.Screen
-          name="player"
-          options={{
-            headerShown: false, // No header bar
-          }}
-        />
-      </Stack>
-    </ThemeProvider>
-    </PaperProvider>
+    <AuthProvider>
+      <ProtectedRoute>
+        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: "slide_from_right",
+            }}
+          >
+            {/* Root index */}
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            
+            {/* Auth flow */}
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            
+            {/* Onboarding flow */}
+            <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
+            
+            {/* Main tab navigation */}
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            
+            {/* Fullscreen Player Page */}
+            <Stack.Screen
+              name="player"
+              options={{
+                headerShown: false,
+                presentation: 'modal',
+              }}
+            />
+          </Stack>
+        </ThemeProvider>
+      </ProtectedRoute>
+    </AuthProvider>
   );
 }

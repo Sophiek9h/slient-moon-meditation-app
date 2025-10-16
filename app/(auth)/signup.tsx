@@ -9,9 +9,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Checkbox from "expo-checkbox";
+import { signUpWithEmail } from "@/lib/firebase.auth";
 
 const signup = () => {
   const router = useRouter();
@@ -21,9 +24,49 @@ const signup = () => {
   const [password, setPassword] = useState("");
   const [checked, setChecked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    console.log({ username, email, password, checked });
+  const handleSubmit = async () => {
+    // Validation
+    if (!username.trim()) {
+      Alert.alert("Error", "Please enter a username");
+      return;
+    }
+
+    if (!email.trim()) {
+      Alert.alert("Error", "Please enter your email");
+      return;
+    }
+
+    if (!password) {
+      Alert.alert("Error", "Please enter a password");
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters");
+      return;
+    }
+
+    if (!checked) {
+      Alert.alert("Error", "Please accept the Privacy Policy");
+      return;
+    }
+
+    // Try to create account
+    setLoading(true);
+    try {
+      const user = await signUpWithEmail(email, password, username);
+      console.log("Account created successfully:", user.email);
+      
+      // Navigate to main app (tabs)
+      router.replace("/(onboarding)");
+      
+    } catch (error: any) {
+      Alert.alert("Sign Up Failed", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,10 +89,11 @@ const signup = () => {
           />
         </TouchableOpacity>
 
-        <Text className="mt-6 text-center text-2xl font-helveticaBold">
+        <Text className="text-center text-2xl font-helveticaBold">
           Create your account
         </Text>
 
+        {/* We'll add facebook and google Sign-In later */}
         <TouchableOpacity className="bg-facebookBlue rounded-full mx-3 py-4 mt-10 flex justify-center items-center">
           <View className="flex flex-row items-center gap-5">
             <Image
@@ -63,7 +107,7 @@ const signup = () => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity className="bg-white border border-gray-200 rounded-full mx-3 py-4 mt-6 flex justify-center items-center">
+        <TouchableOpacity className="bg-white border border-gray-200 rounded-full mx-3 py-4 mt-10 flex justify-center items-center">
           <View className="flex flex-row items-center gap-5">
             <Image
               source={icons.google}
@@ -84,8 +128,8 @@ const signup = () => {
           value={username}
           onChangeText={setUsername}
           placeholder="Enter Username"
-          keyboardType="name-phone-pad"
           autoCapitalize="none"
+          editable={!loading}
           className="border border-gray-200 rounded-2xl px-6 py-5 mb-6 mx-3 bg-gray-100"
         />
 
@@ -95,6 +139,7 @@ const signup = () => {
           placeholder="Enter Email"
           keyboardType="email-address"
           autoCapitalize="none"
+          editable={!loading}
           className="border border-gray-200 rounded-2xl px-6 py-5 mb-6 mx-3 bg-gray-100"
         />
 
@@ -105,11 +150,13 @@ const signup = () => {
             placeholder="Enter Password"
             secureTextEntry={!showPassword}
             autoCapitalize="none"
+            editable={!loading}
             className="border border-gray-200 rounded-2xl px-6 py-5 bg-gray-100 pr-14"
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             className="absolute right-4 top-5"
+            disabled={loading}
           >
             <Image
               source={showPassword ? icons.eyeOpen : icons.eye}
@@ -129,15 +176,35 @@ const signup = () => {
             value={checked}
             onValueChange={setChecked}
             color={checked ? "#8E97FD" : undefined}
+            disabled={loading}
           />
         </View>
 
         <TouchableOpacity
           onPress={handleSubmit}
+          disabled={loading}
           className="bg-primaryBlue rounded-full mx-3 py-4 mt-14 flex justify-center items-center"
+          style={{ opacity: loading ? 0.6 : 1 }}
         >
-          <Text className="text-center font-helveticaMedium text-base text-white">
-            GET STARTED
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text className="text-center font-helveticaMedium text-base text-white">
+              GET STARTED
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          onPress={() => router.push("/(auth)/signin")}
+          className="mt-6"
+          disabled={loading}
+        >
+          <Text className="text-center text-gray-600">
+            Already have an account?{" "}
+            <Text className="text-primaryBlue font-helveticaMedium">
+              Sign In
+            </Text>
           </Text>
         </TouchableOpacity>
       </SafeAreaView>
