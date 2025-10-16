@@ -41,12 +41,12 @@ const handleLogout = async () => {
 };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 ">
       <View className="flex-1 px-6">
         <Text className="text-2xl font-helveticaBold mt-10 mb-6">Profile</Text>
 
         {/* User Info */}
-        <View className="bg-gray-100 rounded-2xl p-6 mb-6">
+        <View className="bg-gray-200 rounded-2xl p-6 mb-6">
           <Text className="text-lg font-helveticaMedium mb-2">
             {user?.displayName || 'User'}
           </Text>
