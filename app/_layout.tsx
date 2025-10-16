@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { useColorScheme, View, ActivityIndicator } from "react-native";
 import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useFonts } from "expo-font";
+import { PaperProvider } from "react-native-paper";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -30,6 +31,7 @@ export default function RootLayout() {
   }
 
   return (
+    <PaperProvider>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack
         screenOptions={{
@@ -55,5 +57,6 @@ export default function RootLayout() {
         />
       </Stack>
     </ThemeProvider>
+    </PaperProvider>
   );
 }

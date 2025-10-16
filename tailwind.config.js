@@ -20,6 +20,7 @@ module.exports = {
       },
       colors: {
         primaryBlue: "#8E97FD",
+        facebookBlue: "#7583CA",
       },
     },
   },

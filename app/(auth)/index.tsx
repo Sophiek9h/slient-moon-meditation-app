@@ -3,7 +3,6 @@ import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
-import { push } from 'expo-router/build/global-state/routing'
 import { useRouter } from 'expo-router'
 
 const index = () => {
