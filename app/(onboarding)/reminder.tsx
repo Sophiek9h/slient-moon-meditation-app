@@ -1,12 +1,26 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { useRouter } from 'expo-router';
+import { useAuth } from '@/lib/AuthContext';
+import { setOnboardingComplete } from '@/lib/onboarding.storage';
+import { TouchableOpacity, Text } from 'react-native';
 
-const reminder = () => {
+const ReminderScreen = () => {
+  const router = useRouter();
+  const { user } = useAuth();
+
+  const handleComplete = async () => {
+    if (user) {
+      // Mark onboarding as complete
+      await setOnboardingComplete(user.uid);
+      
+      // Navigate to tabs
+      router.replace('/(tabs)/(home)');
+    }
+  };
+
   return (
-    <View>
-      <Text>reminder</Text>
-    </View>
-  )
-}
-
-export default reminder
+    // Your onboarding UI
+    <TouchableOpacity onPress={handleComplete}>
+      <Text>Get Started</Text>
+    </TouchableOpacity>
+  );
+};

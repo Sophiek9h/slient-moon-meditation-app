@@ -1,44 +1,43 @@
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
-import React, { useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { signOutUser } from '@/lib/firebase.auth';
-import { useAuth } from '@/lib/AuthContext';
+import { View, Text, TouchableOpacity, Alert } from "react-native";
+import React, { useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { signOutUser } from "@/lib/firebase.auth";
+import { useAuth } from "@/lib/AuthContext";
+// Temporary - for testing only
+import { clearOnboardingStatus } from "@/lib/onboarding.storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const index = () => {
   const router = useRouter();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
-const handleLogout = async () => {
-  Alert.alert(
-    'Logout',
-    'Are you sure you want to logout?',
-    [
+  const handleLogout = async () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
       {
-        text: 'Cancel',
-        style: 'cancel',
+        text: "Cancel",
+        style: "cancel",
       },
       {
-        text: 'Logout',
-        style: 'destructive',
+        text: "Logout",
+        style: "destructive",
         onPress: async () => {
           setLoading(true);
           try {
             await signOutUser();
-            console.log('User logged out successfully');
+            console.log("User logged out successfully");
             // Use href instead of replace
-            router.push('/(auth)');
+            router.push("/(auth)");
           } catch (error: any) {
-            Alert.alert('Error', error.message);
+            Alert.alert("Error", error.message);
           } finally {
             setLoading(false);
           }
         },
       },
-    ]
-  );
-};
+    ]);
+  };
 
   return (
     <SafeAreaView className="flex-1 ">
@@ -48,7 +47,7 @@ const handleLogout = async () => {
         {/* User Info */}
         <View className="bg-gray-200 rounded-2xl p-6 mb-6">
           <Text className="text-lg font-helveticaMedium mb-2">
-            {user?.displayName || 'User'}
+            {user?.displayName || "User"}
           </Text>
           <Text className="text-gray-500 font-helveticaLight">
             {user?.email}
@@ -63,10 +62,28 @@ const handleLogout = async () => {
           style={{ opacity: loading ? 0.6 : 1 }}
         >
           <Text className="text-center font-helveticaMedium text-base text-white">
-            {loading ? 'Logging out...' : 'LOGOUT'}
+            {loading ? "Logging out..." : "LOGOUT"}
           </Text>
         </TouchableOpacity>
-        
+
+        <TouchableOpacity
+          onPress={async () => {
+            if (user) {
+              await AsyncStorage.removeItem(
+                `@has_completed_onboarding_${user.uid}`
+              );
+              Alert.alert(
+                "Done",
+                "Onboarding reset. Logout and login to see it again."
+              );
+            }
+          }}
+          className="bg-gray-500 rounded-full py-4 mt-4"
+        >
+          <Text className="text-center text-white">
+            Reset Onboarding (Dev Only)
+          </Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

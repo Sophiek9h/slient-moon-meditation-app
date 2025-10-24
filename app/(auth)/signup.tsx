@@ -59,9 +59,6 @@ const signup = () => {
       const user = await signUpWithEmail(email, password, username);
       console.log("Account created successfully:", user.email);
       
-      // Navigate to main app (tabs)
-      router.replace("/(onboarding)");
-      
     } catch (error: any) {
       Alert.alert("Sign Up Failed", error.message);
     } finally {
